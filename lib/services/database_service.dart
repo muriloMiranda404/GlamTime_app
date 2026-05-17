@@ -5,12 +5,19 @@ import '../models/expense_model.dart';
 import '../models/professional_model.dart';
 
 class DatabaseService {
+
+  static bool _firebaseInitialized = false;
+
+  static void markFirebaseInitialized(){
+    _firebaseInitialized = true;
+  }
+
   FirebaseFirestore? get _firestore {
-    if (FirebaseFirestore.instance == false) return null;
+    if (!_firebaseInitialized) return null;
     return FirebaseFirestore.instance;
   }
 
-  bool get isFirebaseAvailable => FirebaseFirestore.instance != false;
+  bool get isFirebaseAvailable => _firebaseInitialized;
 
   // Coleções
   static const String _servicesColl = 'services';
