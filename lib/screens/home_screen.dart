@@ -112,70 +112,101 @@ class _HomeScreenState extends State<HomeScreen> {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 180,
+            expandedHeight: 160,
             floating: false,
             pinned: true,
+            elevation: 0,
             backgroundColor: AppTheme.primary,
             flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                'Olá, ${auth.userModel?.name.split(' ')[0] ?? "Cliente"}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppTheme.primary, AppTheme.textLight],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+              titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
+              title: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Olá, ${auth.userModel?.name.split(' ')[0] ?? "Cliente"}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: -0.5,
+                    ),
                   ),
-                ),
-                child: const Opacity(
-                  opacity: 0.2,
-                  child: Icon(Icons.spa, size: 150, color: Colors.white),
-                ),
+                  Text(
+                    'O que vamos fazer hoje?',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.8),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+              background: Stack(
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppTheme.primary, AppTheme.textLight],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    right: -20,
+                    top: -20,
+                    child: Opacity(
+                      opacity: 0.1,
+                      child: Icon(Icons.spa, size: 200, color: Colors.white),
+                    ),
+                  ),
+                ],
               ),
             ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.history, color: Colors.white),
+                icon: const Icon(Icons.history, color: Colors.white, size: 22),
                 onPressed: () =>
                     Navigator.pushNamed(context, '/my_appointments'),
               ),
-              IconButton(
-                icon: const Icon(Icons.logout, color: Colors.white),
-                onPressed: () => auth.signOut(),
-              ),
+              const SizedBox(width: 8),
             ],
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Escolha seus serviços',
-                    style: AppTheme.lightTheme.textTheme.displayLarge?.copyWith(
-                      fontSize: 24,
-                    ),
+                    'Nossos Serviços',
+                    style: AppTheme.lightTheme.textTheme.titleLarge,
                   ),
                   const SizedBox(height: 16),
-                  TextField(
-                    onChanged: (value) => setState(() => _searchQuery = value),
-                    decoration: InputDecoration(
-                      hintText: 'Buscar serviço...',
-                      prefixIcon: const Icon(
-                        Icons.search,
-                        color: AppTheme.primary,
+                  Container(
+                    decoration: BoxDecoration(
+                      boxShadow: AppTheme.softShadow,
+                    ),
+                    child: TextField(
+                      onChanged: (value) => setState(() => _searchQuery = value),
+                      decoration: InputDecoration(
+                        hintText: 'Buscar por nome...',
+                        prefixIcon: const Icon(
+                          Icons.search_rounded,
+                          color: AppTheme.primary,
+                          size: 20,
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide.none,
+                        ),
                       ),
-                      filled: true,
-                      fillColor: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   CategoryFilter(
                     selectedCategory: _selectedCategory,
                     onCategorySelected: (category) =>
@@ -188,6 +219,21 @@ class _HomeScreenState extends State<HomeScreen> {
           StreamBuilder<List<ServiceModel>>(
             stream: _db.services,
             builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return SliverFillRemaining(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Text(
+                        'Erro ao carregar serviços: ${snapshot.error}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ),
+                );
+              }
+
               if (!snapshot.hasData) {
                 return const SliverFillRemaining(
                   child: Center(child: CircularProgressIndicator()),
@@ -209,8 +255,37 @@ class _HomeScreenState extends State<HomeScreen> {
                   .toList();
 
               if (services.isEmpty) {
-                return const SliverFillRemaining(
-                  child: Center(child: Text('Nenhum serviço encontrado.')),
+                return SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: AppTheme.accent.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.search_off_rounded,
+                            size: 48,
+                            color: AppTheme.primary.withOpacity(0.5),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          'Nenhum serviço encontrado',
+                          style: AppTheme.lightTheme.textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Tente buscar por outro termo ou categoria.',
+                          style: AppTheme.lightTheme.textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
+                  ),
                 );
               }
 

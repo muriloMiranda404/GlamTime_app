@@ -6,18 +6,17 @@ import '../models/professional_model.dart';
 
 class DatabaseService {
 
-  static bool _firebaseInitialized = false;
+  static bool _firebaseInitialized = true;
 
   static void markFirebaseInitialized(){
     _firebaseInitialized = true;
   }
 
   FirebaseFirestore? get _firestore {
-    if (!_firebaseInitialized) return null;
     return FirebaseFirestore.instance;
   }
 
-  bool get isFirebaseAvailable => _firebaseInitialized;
+  bool get isFirebaseAvailable => true;
 
   // Coleções
   static const String _servicesColl = 'services';
@@ -40,16 +39,21 @@ class DatabaseService {
   Future<void> addProfessional(ProfessionalModel professional) async {
     final db = _firestore;
     if (db == null) return;
-    await db.collection(_professionalsColl).add(professional.toMap());
+    await db
+        .collection(_professionalsColl)
+        .doc(professional.id)
+        .set(professional.toMap());
   }
 
   Future<void> updateProfessional(ProfessionalModel professional) async {
     final db = _firestore;
     if (db == null) return;
+    // Usamos 'set' com 'merge: true' em vez de 'update'
+    // Isso garante que se o documento não existir por algum motivo, ele será criado
     await db
         .collection(_professionalsColl)
         .doc(professional.id)
-        .update(professional.toMap());
+        .set(professional.toMap(), SetOptions(merge: true));
   }
 
   Future<void> deleteProfessional(String id) async {
@@ -66,14 +70,11 @@ class DatabaseService {
     String? professionalId,
   }) async {
     final db = _firestore;
-    if (db == null)
-      return true; // Se não tem Firebase, assume disponível (mock)
+    if (db == null) return true;
 
-    // Definir o início e fim do dia para filtrar a busca no servidor
     final startOfDay = DateTime(dateTime.year, dateTime.month, dateTime.day);
     final endOfDay = startOfDay.add(const Duration(days: 1));
 
-    // Busca no SERVIDOR apenas agendamentos do dia escolhido que não foram cancelados
     final querySnapshot = await db
         .collection(_appointmentsColl)
         .where('dateTime', isGreaterThanOrEqualTo: startOfDay)
@@ -81,31 +82,29 @@ class DatabaseService {
         .get();
 
     final appointments = querySnapshot.docs.map((doc) {
-      final data = doc.data();
-      return AppointmentModel.fromMap(data, doc.id);
+      return AppointmentModel.fromMap(doc.data(), doc.id);
     }).toList();
+
+    // O fim do novo agendamento que se deseja fazer
+    final newStart = dateTime;
+    final newEnd = dateTime.add(Duration(minutes: duration));
 
     for (var appt in appointments) {
       if (appt.status == 'cancelled') continue;
+      if (professionalId != null && appt.professionalId != professionalId) continue;
 
-      // Verifica se é o mesmo profissional
-      if (professionalId != null && appt.professionalId != professionalId) {
-        continue;
-      }
+      final apptStart = appt.dateTime;
+      final apptEnd = appt.dateTime.add(Duration(minutes: appt.durationInMinutes));
 
-      final apptEnd = appt.dateTime.add(
-        Duration(minutes: appt.durationInMinutes),
-      );
-      final newEnd = dateTime.add(Duration(minutes: duration));
-
-      // Lógica de sobreposição de horários (Interseção de intervalos)
-      // Um conflito ocorre se o novo início for antes do fim do existente
-      // E o início do existente for antes do novo fim.
-      if (dateTime.isBefore(apptEnd) && appt.dateTime.isBefore(newEnd)) {
-        return false; // Conflito detectado!
+      // Lógica de colisão:
+      // Se o novo agendamento começa antes do fim do existente
+      // E o novo agendamento termina depois do início do existente
+      if (newStart.isBefore(apptEnd) && newEnd.isAfter(apptStart)) {
+        print("CONFLITO DETECTADO: Novo ($newStart - $newEnd) colide com Existente ($apptStart - $apptEnd)");
+        return false;
       }
     }
-    return true; // Horário livre
+    return true;
   }
 
   // --- AGENDAMENTOS ---
@@ -149,7 +148,9 @@ class DatabaseService {
       throw Exception('Este horário acabou de ser ocupado por outra pessoa!');
     }
 
-    await db.collection(_appointmentsColl).add(appt.toMap());
+    // Criamos o documento e deixamos o Firestore gerar o ID real
+    final docRef = await db.collection(_appointmentsColl).add(appt.toMap());
+    print("DATABASE_SERVICE: Novo agendamento criado com ID: ${docRef.id}");
   }
 
   // --- SERVIÇOS ---
@@ -158,6 +159,10 @@ class DatabaseService {
     final db = _firestore;
     if (db == null) return Stream.value([]);
     return db.collection(_servicesColl).snapshots().map((snapshot) {
+      print("DATABASE_SERVICE: Recebidos ${snapshot.docs.length} documentos da coleção 'services'");
+      for (var doc in snapshot.docs) {
+        print("DATABASE_SERVICE: Doc ID: ${doc.id}, Data: ${doc.data()}");
+      }
       return snapshot.docs
           .map((doc) => ServiceModel.fromMap(doc.data(), doc.id))
           .toList();
@@ -185,7 +190,20 @@ class DatabaseService {
   Future<void> updateAppointmentStatus(String id, String status) async {
     final db = _firestore;
     if (db == null) return;
-    await db.collection(_appointmentsColl).doc(id).update({'status': status});
+    
+    Map<String, dynamic> updates = {'status': status};
+    // Se o status for 'completed', marcamos como pago automaticamente por padrão
+    if (status == 'completed') {
+      updates['isPaid'] = true;
+    }
+    
+    await db.collection(_appointmentsColl).doc(id).update(updates);
+  }
+
+  Future<void> updatePaymentStatus(String id, bool isPaid) async {
+    final db = _firestore;
+    if (db == null) return;
+    await db.collection(_appointmentsColl).doc(id).update({'isPaid': isPaid});
   }
 
   // --- FINANÇAS ---

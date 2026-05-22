@@ -54,7 +54,9 @@ class MyAppointmentsScreen extends StatelessWidget {
             );
           }
 
-          final appointments = snapshot.data!;
+          final appointments = snapshot.data!
+              .where((a) => a.status == 'pending' || a.status == 'confirmed')
+              .toList();
           appointments.sort((a, b) => b.dateTime.compareTo(a.dateTime));
 
           return ListView.builder(

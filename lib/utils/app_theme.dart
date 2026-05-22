@@ -30,46 +30,82 @@ class AppTheme {
           fontSize: 32,
           fontWeight: FontWeight.bold,
           color: textDark,
-          letterSpacing: 0.5,
+          letterSpacing: -0.5,
         ),
         displayMedium: GoogleFonts.playfairDisplay(
           fontSize: 24,
           fontWeight: FontWeight.w600,
           color: textDark,
+          letterSpacing: -0.5,
         ),
         titleLarge: GoogleFonts.montserrat(
           fontSize: 20,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.bold,
           color: textDark,
-          letterSpacing: 0.2,
+          letterSpacing: -0.2,
         ),
         titleMedium: GoogleFonts.montserrat(
           fontSize: 16,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
           color: textDark,
         ),
-        bodyLarge: GoogleFonts.montserrat(fontSize: 16, color: textDark),
-        bodyMedium: GoogleFonts.montserrat(fontSize: 14, color: textLight),
+        bodyLarge: GoogleFonts.montserrat(
+          fontSize: 16,
+          color: textDark,
+          height: 1.5,
+        ),
+        bodyMedium: GoogleFonts.montserrat(
+          fontSize: 14,
+          color: textLight,
+          height: 1.5,
+        ),
+        labelSmall: GoogleFonts.montserrat(
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          color: textLight,
+          letterSpacing: 0.5,
+        ),
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.transparent,
+        backgroundColor: background,
         elevation: 0,
+        scrolledUnderElevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: textDark),
-        titleTextStyle: TextStyle(
-          color: textDark,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'Playfair Display',
-        ),
+        iconTheme: IconThemeData(color: textDark, size: 22),
+        titleTextStyle: TextStyle(color: textDark, fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Montserrat', letterSpacing: -0.5),
       ),
       cardTheme: CardThemeData(
         elevation: 0,
         color: surface,
+        margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
-          side: BorderSide(color: primary.withOpacity(0.1), width: 1),
+          side: BorderSide(color: primary.withValues(alpha: 0.08), width: 1),
         ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: surface,
+        indicatorColor: primary.withValues(alpha: 0.12),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return GoogleFonts.montserrat(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: primary,
+            );
+          }
+          return GoogleFonts.montserrat(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: textLight,
+          );
+        }),
+        iconTheme: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return const IconThemeData(color: primary, size: 24);
+          }
+          return IconThemeData(color: textLight.withOpacity(0.7), size: 24);
+        }),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -77,14 +113,14 @@ class AppTheme {
           foregroundColor: Colors.white,
           minimumSize: const Size(double.infinity, 56),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(18),
           ),
-          elevation: 4,
-          shadowColor: primary.withOpacity(0.4),
+          elevation: 2,
+          shadowColor: primary.withOpacity(0.3),
           textStyle: GoogleFonts.montserrat(
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: FontWeight.bold,
-            letterSpacing: 1.0,
+            letterSpacing: 0.5,
           ),
         ),
       ),
@@ -92,30 +128,47 @@ class AppTheme {
         filled: true,
         fillColor: surface,
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 24,
+          horizontal: 20,
           vertical: 18,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: primary.withOpacity(0.2)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
           borderSide: BorderSide(color: primary.withOpacity(0.1)),
         ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(18),
+          borderSide: BorderSide(color: primary.withOpacity(0.08)),
+        ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
           borderSide: const BorderSide(color: primary, width: 1.5),
         ),
-        hintStyle: TextStyle(color: textLight.withOpacity(0.5)),
-      ),
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: surface,
-        selectedItemColor: primary,
-        unselectedItemColor: textLight.withOpacity(0.5),
-        type: BottomNavigationBarType.fixed,
-        elevation: 20,
+        hintStyle: GoogleFonts.montserrat(
+          color: textLight.withOpacity(0.5),
+          fontSize: 14,
+        ),
       ),
     );
   }
+
+  static List<BoxShadow> get softShadow => [
+        BoxShadow(
+          color: textDark.withOpacity(0.04),
+          blurRadius: 12,
+          offset: const Offset(0, 4),
+        ),
+        BoxShadow(
+          color: textDark.withOpacity(0.02),
+          blurRadius: 2,
+          offset: const Offset(0, 1),
+        ),
+      ];
+
+  static List<BoxShadow> get cardShadow => [
+        BoxShadow(
+          color: textDark.withOpacity(0.05),
+          blurRadius: 20,
+          offset: const Offset(0, 8),
+        ),
+      ];
 }

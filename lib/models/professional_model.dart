@@ -4,7 +4,8 @@ class ProfessionalModel {
   final String photoUrl;
   final String specialty;
   final List<String> services; // IDs dos serviços que este profissional realiza
-  final Map<String, List<String>> workingHours; // Ex: {"segunda": ["08:00", "18:00"]}
+  final Map<String, dynamic> workingHours; // Ex: {"1": {"start": "08:00", "end": "18:00", "isOpen": true}}
+  final int slotIntervalMinutes; // Intervalo entre agendamentos (ex: 100 para 1h40)
   final double commissionRate;
   final bool isActive;
 
@@ -15,6 +16,7 @@ class ProfessionalModel {
     required this.specialty,
     required this.services,
     required this.workingHours,
+    this.slotIntervalMinutes = 100, // Padrão 1h40
     this.commissionRate = 0.0,
     this.isActive = true,
   });
@@ -27,6 +29,7 @@ class ProfessionalModel {
       'specialty': specialty,
       'services': services,
       'workingHours': workingHours,
+      'slotIntervalMinutes': slotIntervalMinutes,
       'commissionRate': commissionRate,
       'isActive': isActive,
     };
@@ -39,11 +42,8 @@ class ProfessionalModel {
       photoUrl: map['photoUrl'] ?? '',
       specialty: map['specialty'] ?? '',
       services: List<String>.from(map['services'] ?? []),
-      workingHours: Map<String, List<String>>.from(
-        (map['workingHours'] ?? {}).map(
-          (key, value) => MapEntry(key, List<String>.from(value)),
-        ),
-      ),
+      workingHours: Map<String, dynamic>.from(map['workingHours'] ?? {}),
+      slotIntervalMinutes: map['slotIntervalMinutes'] ?? 100,
       commissionRate: (map['commissionRate'] ?? 0.0).toDouble(),
       isActive: map['isActive'] ?? true,
     );

@@ -88,20 +88,149 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   Future<void> _pickTime() async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: const TimeOfDay(hour: 9, minute: 0),
-      builder: (context, child) {
-        return Theme(
-          data: AppTheme.lightTheme.copyWith(
-            colorScheme: ColorScheme.light(primary: AppTheme.primary),
-          ),
-          child: child!,
+    if (_selectedDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Selecione uma data primeiro')),
+      );
+      return;
+    }
+
+    if (_selectedProfessional == null) {
+      await _loadDefaultProfessional();
+    }
+
+    final prof = _selectedProfessional!;
+    final dayOfWeek = _selectedDate!.weekday.toString();
+    final dayConfig = prof.workingHours[dayOfWeek];
+
+    if (dayConfig == null || dayConfig['isOpen'] == false) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('O profissional não trabalha neste dia.')),
         );
-      },
+      }
+      return;
+    }
+
+    final startTimeStr = dayConfig['start'] ?? '08:00';
+    final endTimeStr = dayConfig['end'] ?? '18:00';
+    final interval = prof.slotIntervalMinutes;
+
+    final startParts = startTimeStr.split(':');
+    final endParts = endTimeStr.split(':');
+
+    DateTime current = DateTime(
+      _selectedDate!.year,
+      _selectedDate!.month,
+      _selectedDate!.day,
+      int.parse(startParts[0]),
+      int.parse(startParts[1]),
     );
-    if (picked != null) {
-      setState(() => _selectedTime = picked);
+
+    final end = DateTime(
+      _selectedDate!.year,
+      _selectedDate!.month,
+      _selectedDate!.day,
+      int.parse(endParts[0]),
+      int.parse(endParts[1]),
+    );
+
+    List<DateTime> availableSlots = [];
+    
+    // Mostra loading enquanto verifica disponibilidade
+    if (mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    while (current.isBefore(end)) {
+      final isAvail = await _dbService.isTimeSlotAvailable(
+        current,
+        _totalDuration,
+        professionalId: prof.id,
+      );
+      if (isAvail) {
+        availableSlots.add(current);
+      }
+      current = current.add(Duration(minutes: interval));
+    }
+
+    if (mounted) Navigator.pop(context); // Remove loading
+
+    if (availableSlots.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Não há horários disponíveis para este dia.')),
+        );
+      }
+      return;
+    }
+
+    if (mounted) {
+      showModalBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        builder: (context) {
+          return Container(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Horários Disponíveis',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Intervalos de ${prof.slotIntervalMinutes ~/ 60}h${prof.slotIntervalMinutes % 60}min',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                ),
+                const SizedBox(height: 20),
+                Flexible(
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      childAspectRatio: 2.2,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                    ),
+                    itemCount: availableSlots.length,
+                    itemBuilder: (context, index) {
+                      final slot = availableSlots[index];
+                      return ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            _selectedTime = TimeOfDay.fromDateTime(slot);
+                          });
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.secondary,
+                          foregroundColor: AppTheme.primary,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          DateFormat('HH:mm').format(slot),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
     }
   }
 

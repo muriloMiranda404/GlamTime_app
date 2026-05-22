@@ -7,6 +7,7 @@ class AppointmentModel {
   final String serviceName;
   final DateTime dateTime;
   final String status; // 'pending', 'confirmed', 'cancelled', 'completed'
+  final bool isPaid;
   final String professionalId;
   final String professionalName;
   final double totalPrice;
@@ -22,6 +23,7 @@ class AppointmentModel {
     required this.serviceName,
     required this.dateTime,
     this.status = 'pending',
+    this.isPaid = false,
     required this.professionalId,
     required this.professionalName,
     this.totalPrice = 0.0,
@@ -31,7 +33,6 @@ class AppointmentModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'userId': userId,
       'userName': userName,
       'userPhone': userPhone,
@@ -39,6 +40,7 @@ class AppointmentModel {
       'serviceName': serviceName,
       'dateTime': dateTime.toIso8601String(),
       'status': status,
+      'isPaid': isPaid,
       'professionalId': professionalId,
       'professionalName': professionalName,
       'totalPrice': totalPrice,
@@ -49,7 +51,7 @@ class AppointmentModel {
 
   factory AppointmentModel.fromMap(Map<String, dynamic> map, String id) {
     return AppointmentModel(
-      id: map['id'] ?? id,
+      id: id,
       userId: map['userId'] ?? '',
       userName: map['userName'] ?? '',
       userPhone: map['userPhone'] ?? '',
@@ -57,6 +59,7 @@ class AppointmentModel {
       serviceName: map['serviceName'] ?? '',
       dateTime: DateTime.parse(map['dateTime']),
       status: map['status'] ?? 'pending',
+      isPaid: map['isPaid'] ?? false,
       professionalId: map['professionalId'] ?? '',
       professionalName: map['professionalName'] ?? '',
       totalPrice: (map['totalPrice'] ?? 0.0).toDouble(),

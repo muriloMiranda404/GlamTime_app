@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:glam_time/firebase_options.dart';
 import 'package:glam_time/screens/firebase_error_screen.dart';
 import 'package:glam_time/services/database_service.dart';
 import 'package:provider/provider.dart';
@@ -14,26 +15,14 @@ void main() async {
     WidgetsFlutterBinding.ensureInitialized();
 
     try {
-      await Firebase.initializeApp();
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
       firebaseOk = true;
+      debugPrint("Firebase inicializado com sucesso usando FlutterFire.");
     } catch (e) {
-      debugPrint("Erro na inicialização automática do Firebase: $e");
-      try {
-        await Firebase.initializeApp(
-          options: const FirebaseOptions(
-            apiKey: 'AIzaSyACOm1cKvLSfzvnmpQHyQmKqKXsAGwkWVI',
-            appId: '1:729328356052:android:70b1355e0fee6c8c0b4941',
-            messagingSenderId: '729328356052',
-            projectId: 'glamtime-8bfea',
-            storageBucket: 'glamtime-8bfea.firebasestorage.app',
-          ),
-        );
-        firebaseOk = true;
-        debugPrint("Firebase inicializado com sucesso via opções manuais.");
-      } catch (e2) {
-        firebaseOk = false;
-        debugPrint("Firebase não pôde ser configurado. Modo demonstração.");
-      }
+      debugPrint("Erro na inicialização do Firebase: $e");
+      firebaseOk = false;
     }
 
     // propaga o estado para o DatabaseService
