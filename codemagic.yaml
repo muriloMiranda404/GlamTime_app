@@ -11,17 +11,14 @@ workflows:
       - name: Get Flutter packages
         script: |
           flutter pub get
-      - name: Initialize iOS and Force 15.0
+      - name: Patch iOS Version (SPM)
         script: |
-          # Gera os arquivos de infraestrutura do iOS na máquina do Codemagic
-          flutter build ios --simulator --config-only
-          # Força a versão 15.0 no arquivo do projeto
-          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 13.0/IPHONEOS_DEPLOYMENT_TARGET = 15.0/g' ios/Runner.xcodeproj/project.pbxproj
-          # Instala as dependências
-          cd ios && pod install
+          # Força a versão 15.0 em todos os arquivos de configuração do iOS
+          find ios -name "project.pbxproj" -exec sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 13.0/IPHONEOS_DEPLOYMENT_TARGET = 15.0/g' {} +
       - name: Flutter build iOS (Simulator)
         script: |
-          flutter build ios --simulator --debug
+          # O build vai gerenciar o Swift Package Manager automaticamente
+          flutter build ios --simulator --debug --no-codesign
     artifacts:
       - build/ios/iphonesimulator/*.app
     publishing:
