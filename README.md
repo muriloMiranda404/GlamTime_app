@@ -1,17 +1,55 @@
-# glam_time
+# 💅 GlamTime
 
-A new Flutter project.
+Aplicativo de agendamento para salões de beleza, desenvolvido em Flutter com Firebase.
 
-## Getting Started
+## Funcionalidades
 
-This project is a starting point for a Flutter application.
+**Clientes**
+- Cadastro e login
+- Catálogo de serviços com filtro por categoria e busca
+- Seleção de múltiplos serviços em um único agendamento
+- Escolha de data, horário e forma de pagamento
+- Visualização e cancelamento de agendamentos
+- Notificações locais de lembrete (24h e 1h antes)
 
-A few resources to get you started if this is your first Flutter project:
+**Administrador**
+- Agenda com filtro por profissional
+- Gerenciamento de serviços (criar, editar, ativar/desativar, excluir)
+- Gerenciamento de profissionais
+- Dashboard financeiro com gráficos de receita e despesas
+- Relatórios por período e por profissional
+- Bloqueio de horários
+- Notificação via WhatsApp (manual ou via gateway automatizado)
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Stack
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- **Flutter** (Dart)
+- **Firebase** (Firestore, Auth local via SharedPreferences)
+- **Pacotes principais:** `provider`, `fl_chart`, `flutter_local_notifications`, `url_launcher`, `google_fonts`
+
+## Como rodar
+
+```bash
+flutter pub get
+flutter run
+```
+
+> Requer um projeto Firebase configurado. Substitua o `google-services.json` (Android) e `GoogleService-Info.plist` (iOS) pelos seus próprios.
+
+## Estrutura
+lib/
+├── main.dart
+├── models/          # AppointmentModel, ServiceModel, etc.
+├── providers/       # AuthProvider
+├── screens/         # Telas do app (home, booking, admin...)
+├── services/        # DatabaseService, AuthService, NotificationService
+├── utils/           # AppTheme
+└── widgets/         # ServiceCard, CategoryFilter
+
+## Status
+
+Concluído e funcional.
+
+## Aviso
+
+As chaves de API e arquivos de configuração do Firebase presentes no repositório são de um projeto de desenvolvimento. **Não use em produção sem substituí-las.**
