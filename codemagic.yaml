@@ -11,14 +11,17 @@ workflows:
       - name: Get Flutter packages
         script: |
           flutter pub get
-      - name: Flutter build iOS
+      - name: Force iOS 15.0 and Install Pods
         script: |
-          # O comando 'flutter build ios' em um Mac real (Codemagic)
-          # cria automaticamente o Podfile e instala as dependências se necessário.
-          flutter build ios --release --no-codesign
+          # Este script força a versão 15.0 em todos os lugares necessários
+          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 13.0/IPHONEOS_DEPLOYMENT_TARGET = 15.0/g' ios/Runner.xcodeproj/project.pbxproj
+          cd ios && pod install
+      - name: Flutter build iOS (Simulator)
+        script: |
+          # Build para simulador não exige conta paga da Apple nem assinatura
+          flutter build ios --simulator --debug
     artifacts:
-      - build/ios/iphoneos/*.app
-      - build/ios/ipa/*.ipa
+      - build/ios/iphonesimulator/*.app
     publishing:
       email:
         recipients:
