@@ -11,6 +11,8 @@ import 'utils/app_theme.dart';
 import 'services/notification_service.dart';
 
 bool firebaseOk = false;
+String? firebaseError;
+
 void main() async {
     WidgetsFlutterBinding.ensureInitialized();
 
@@ -22,6 +24,7 @@ void main() async {
       debugPrint("Firebase inicializado com sucesso usando FlutterFire.");
     } catch (e) {
       debugPrint("Erro na inicialização do Firebase: $e");
+      firebaseError = e.toString();
       firebaseOk = false;
     }
 
@@ -37,12 +40,13 @@ void main() async {
       debugPrint("Erro ao inicializar notificações: $e");
     }
 
-    runApp(MyApp(firebaseOk: firebaseOk));
+    runApp(MyApp(firebaseOk: firebaseOk, error: firebaseError));
 }
 
 class MyApp extends StatelessWidget {
   final bool firebaseOk;
-  const MyApp({super.key, required this.firebaseOk});
+  final String? error;
+  const MyApp({super.key, required this.firebaseOk, this.error});
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +56,7 @@ class MyApp extends StatelessWidget {
         title: 'GlamTime',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        home: firebaseOk ? const Wrapper() : const FirebaseErrorScreen(),
+        home: firebaseOk ? const Wrapper() : FirebaseErrorScreen(error: error),
         routes: {'/my_appointments': (context) => const MyAppointmentsScreen()},
       ),
     );

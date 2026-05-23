@@ -223,4 +223,25 @@ class DatabaseService {
     if (db == null) return;
     await db.collection(_expensesColl).add(expense.toMap());
   }
+
+  // --- RESET DE DADOS FINANCEIROS ---
+
+  Future<void> resetFinancialData() async {
+    final db = _firestore;
+    if (db == null) return;
+
+    // Deleta todos os agendamentos
+    final apptsSnapshot = await db.collection(_appointmentsColl).get();
+    for (var doc in apptsSnapshot.docs) {
+      await doc.reference.delete();
+    }
+
+    // Deleta todas as despesas
+    final expensesSnapshot = await db.collection(_expensesColl).get();
+    for (var doc in expensesSnapshot.docs) {
+      await doc.reference.delete();
+    }
+    
+    print("DATABASE_SERVICE: Todos os dados financeiros (agendamentos e despesas) foram resetados.");
+  }
 }

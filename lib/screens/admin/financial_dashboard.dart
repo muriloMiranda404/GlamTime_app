@@ -35,16 +35,22 @@ class _FinancialDashboardState extends State<FinancialDashboard> {
   bool _isDateInPeriod(DateTime date, String period) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
+    
+    // Ajuste para pegar o início da semana (segunda-feira)
     final startOfWeek = today.subtract(Duration(days: today.weekday - 1));
     final startOfMonth = DateTime(now.year, now.month, 1);
 
+    // Normaliza a data de comparação para remover horas/minutos se necessário, 
+    // mas aqui queremos saber se o evento ocorreu NAQUELE dia em diante.
     switch (period) {
       case 'Hoje':
-        return date.isAfter(today.subtract(const Duration(seconds: 1)));
+        return date.isAfter(today.subtract(const Duration(milliseconds: 1)));
       case 'Esta Semana':
-        return date.isAfter(startOfWeek.subtract(const Duration(seconds: 1)));
+        return date.isAfter(startOfWeek.subtract(const Duration(milliseconds: 1)));
       case 'Este Mês':
-        return date.isAfter(startOfMonth.subtract(const Duration(seconds: 1)));
+        return date.isAfter(startOfMonth.subtract(const Duration(milliseconds: 1)));
+      case 'Tudo':
+        return true;
       default:
         return true;
     }
@@ -60,8 +66,13 @@ class _FinancialDashboardState extends State<FinancialDashboard> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_forever, color: Colors.red),
+            tooltip: 'Resetar Dados',
+            onPressed: _showResetConfirmation,
+          ),
+        ],
       ),
       body: SafeArea(
         child: StreamBuilder<List<ProfessionalModel>>(
@@ -774,6 +785,60 @@ class _FinancialDashboardState extends State<FinancialDashboard> {
             ),
           )
           .toList(),
+    );
+  }
+
+  void _showResetConfirmation() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.red),
+            SizedBox(width: 8),
+            Text('Resetar Tudo?'),
+          ],
+        ),
+        content: const Text(
+          'Esta ação irá apagar TODOS os agendamentos e despesas permanentemente. '
+          'O lucro, ganhos e prejuízos voltarão a zero. Deseja continuar?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('CANCELAR'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              _showLoadingDialog();
+              await _dbService.resetFinancialData();
+              if (mounted) {
+                Navigator.pop(context); // Fecha o loading
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Dados financeiros resetados com sucesso!'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('RESETAR TUDO', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLoadingDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(color: AppTheme.primary),
+      ),
     );
   }
 
