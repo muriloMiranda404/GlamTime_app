@@ -11,15 +11,10 @@ workflows:
       - name: Get Flutter packages
         script: |
           flutter pub get
-      - name: Initialize iOS project
-        script: |
-          # Garante que o projeto iOS está inicializado e gera o Podfile
-          flutter build ios --config-only
-      - name: Install CocoaPods dependencies
-        script: |
-          cd ios && pod install
       - name: Flutter build iOS
         script: |
+          # O comando 'flutter build ios' em um Mac real (Codemagic)
+          # cria automaticamente o Podfile e instala as dependências se necessário.
           flutter build ios --release --no-codesign
     artifacts:
       - build/ios/iphoneos/*.app
