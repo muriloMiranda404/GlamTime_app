@@ -11,6 +11,10 @@ workflows:
       - name: Get Flutter packages
         script: |
           flutter pub get
+      - name: Initialize iOS project
+        script: |
+          # Garante que o projeto iOS está inicializado e gera o Podfile
+          flutter build ios --config-only
       - name: Install CocoaPods dependencies
         script: |
           cd ios && pod install
