@@ -196,9 +196,9 @@ class _BookingScreenState extends State<BookingScreen> {
                     shrinkWrap: true,
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
-                      childAspectRatio: 2.2,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
+                      childAspectRatio: 2.5,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
                     ),
                     itemCount: availableSlots.length,
                     itemBuilder: (context, index) {
@@ -214,13 +214,20 @@ class _BookingScreenState extends State<BookingScreen> {
                           backgroundColor: AppTheme.secondary,
                           foregroundColor: AppTheme.primary,
                           elevation: 0,
+                          padding: EdgeInsets.zero,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: Text(
-                          DateFormat('HH:mm').format(slot),
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            DateFormat('HH:mm').format(slot),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
                         ),
                       );
                     },
@@ -243,11 +250,12 @@ class _BookingScreenState extends State<BookingScreen> {
         elevation: 0,
         foregroundColor: AppTheme.textDark,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
             // Resumo dos Serviços
             Container(
               padding: const EdgeInsets.all(20),
@@ -397,6 +405,7 @@ class _BookingScreenState extends State<BookingScreen> {
           ],
         ),
       ),
+    )
     );
   }
 

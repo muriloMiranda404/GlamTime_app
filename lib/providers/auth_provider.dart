@@ -17,11 +17,11 @@ class AuthProvider with ChangeNotifier {
     });
   }
 
-  Future<bool> signIn(String email, String password) async {
+  Future<bool> signIn(String identifier, String password) async {
     _isLoading = true;
     notifyListeners();
-    final success = await _authService.signInWithEmailAndPassword(
-      email,
+    final success = await _authService.signInWithIdentifier(
+      identifier,
       password,
     );
     if (success) {

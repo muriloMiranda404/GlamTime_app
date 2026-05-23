@@ -22,22 +22,23 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.background,
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [AppTheme.primary.withOpacity(0.1), AppTheme.background],
+      body: SafeArea(
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [AppTheme.primary.withOpacity(0.1), AppTheme.background],
+            ),
           ),
-        ),
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(32.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(32.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                   Container(
                     width: double.infinity,
                     alignment: Alignment.center,
@@ -78,8 +79,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 48),
                   _buildTextField(
                     _emailController,
-                    'E-mail',
-                    Icons.email_outlined,
+                    'E-mail ou Telefone',
+                    Icons.person_outline,
                   ),
                   const SizedBox(height: 16),
                   _buildTextField(
@@ -167,7 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildTextField(

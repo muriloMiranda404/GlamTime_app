@@ -50,14 +50,15 @@ class AuthService {
     }
   }
 
-  // Login Local
-  Future<bool> signInWithEmailAndPassword(String email, String password) async {
+  // Login Híbrido (Email ou Telefone)
+  Future<bool> signInWithIdentifier(String identifier, String password) async {
     final prefs = await SharedPreferences.getInstance();
     List<String> allUsers = prefs.getStringList(_allUsersKey) ?? [];
 
     for (var userStr in allUsers) {
       final userMap = jsonDecode(userStr);
-      if (userMap['email'] == email) {
+      // Verifica se o identificador bate com email OU telefone
+      if (userMap['email'] == identifier || userMap['phone'] == identifier) {
         await prefs.setString(_userKey, userStr);
         return true;
       }

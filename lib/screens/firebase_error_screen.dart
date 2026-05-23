@@ -8,12 +8,13 @@ class FirebaseErrorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
               const Icon(
                 Icons.cloud_off,
                 size: 80,
@@ -35,6 +36,6 @@ class FirebaseErrorScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }

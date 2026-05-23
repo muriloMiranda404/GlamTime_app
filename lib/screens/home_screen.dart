@@ -347,53 +347,56 @@ class _HomeScreenState extends State<HomeScreen> {
       (sum, s) => sum + s.durationInMinutes,
     );
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${_selectedServices.length} serviços selecionados',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Text('$totalTime min • R\$ ${totalValue.toStringAsFixed(2)}'),
-                ],
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(150, 50),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          BookingScreen(services: _selectedServices),
+    return SafeArea(
+      top: false,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${_selectedServices.length} serviços selecionados',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                  );
-                },
-                child: const Text('Agendar Agora'),
-              ),
-            ],
-          ),
-        ],
+                    Text('$totalTime min • R\$ ${totalValue.toStringAsFixed(2)}'),
+                  ],
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(150, 50),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            BookingScreen(services: _selectedServices),
+                      ),
+                    );
+                  },
+                  child: const Text('Agendar Agora'),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

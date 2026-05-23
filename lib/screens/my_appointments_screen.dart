@@ -26,7 +26,8 @@ class MyAppointmentsScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: StreamBuilder<List<AppointmentModel>>(
+      body: SafeArea(
+        child: StreamBuilder<List<AppointmentModel>>(
         stream: dbService.getAppointments(authProvider.userModel!.id),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -189,7 +190,7 @@ class MyAppointmentsScreen extends StatelessWidget {
           );
         },
       ),
-    );
+    ));
   }
 
   Widget _buildStatusBadge(
